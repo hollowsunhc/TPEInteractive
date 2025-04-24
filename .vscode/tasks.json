@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Copy Context to Clipboard",
+      "detail": "Copies the contents of listed files to the clipboard, digestible for LLM usage.",
+      "type": "shell",
+      "command": "code2prompt.exe",
+      "args": [
+        "-i", "vendor\\polyscope\\include\\polyscope\\*.h",
+        "-i", "vendor\\polyscope\\include\\polyscope\\*.ipp",
+        "-i", "vendor\\polyscope\\src\\*.cpp",
+        "-e", "vendor\\polyscope\\include\\polyscope\\render\\*",
+        ".\\"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

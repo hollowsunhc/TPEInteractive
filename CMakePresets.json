@@ -1,0 +1,41 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20,
+        "patch": 0
+    },
+    "configurePresets": [
+    {
+        "name": "native-windows",
+        "generator": "Ninja Multi-Config",
+        "binaryDir": "${sourceDir}/out/build/native",
+        "cacheVariables": {
+            "CMAKE_C_COMPILER": "clang-cl.exe",
+            "CMAKE_CXX_COMPILER": "clang-cl.exe",
+            "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+            "CMAKE_INSTALL_PREFIX" : "${sourceDir}/out/install/native",
+            "CMAKE_MAKE_PROGRAM": "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe",
+            "MKL_DIR": "C:/dev/install/intel-mkl-2024.0.0-windows-x64/intel-mkl/lib/cmake/mkl"
+        }
+    }
+    ],
+    "buildPresets": [
+    {
+        "name": "native-windows-debug",
+        "displayName": "Debug",
+        "configurePreset": "native-windows",
+        "verbose": false,
+        "configuration": "Debug"
+    },
+    {
+        "name": "native-windows-release",
+        "displayName": "Release",
+        "configurePreset": "native-windows",
+        "verbose": false,
+        "configuration": "Release"
+    }
+  ],
+  "testPresets": [],
+  "workflowPresets": []
+}

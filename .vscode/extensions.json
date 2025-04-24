@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+      "svelte.svelte-vscode",
+      "ms-vscode.cpptools",
+      "esbenp.prettier-vscode",
+      "ms-vscode.cmake-tools",
+      "johnpapa.vscode-peacock",
+      "ms-vscode.cpptools-extension-pack"
+    ]
+  }
+  
