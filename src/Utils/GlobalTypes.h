@@ -1,17 +1,18 @@
 #ifndef GLOBAL_TYPES_H
 #define GLOBAL_TYPES_H
 
-#include "Repulsor/submodules/Tensors/MKL.hpp"
-#include "Repulsor/Repulsor.hpp"
+#include "BLASLAPACK_Types.h"
 
-#include <cstddef>
+#include <cstddef> // For size_t (LInt)
 
-// Basic Types
+// --- Common Types ---
 using Int = int;
 using LInt = std::size_t;
 using Real = double;
 
-// Repulsor Types
+// --- Repulsor Includes and Type Aliases ---
+#include "Repulsor/Repulsor.hpp"
+
 using Mesh_T = Repulsor::SimplicialMeshBase<Real, Int, LInt>;
 using Energy_T = Repulsor::EnergyBase<Mesh_T>;
 using Metric_T = Repulsor::MetricBase<Mesh_T>;
