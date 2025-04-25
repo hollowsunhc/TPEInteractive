@@ -130,7 +130,7 @@ void UIManager::DrawVectorVisualizationControls() {
     ImGui::Unindent();
 
     ImGui::BeginDisabled(m_config.Display.useLogScale); // Disable if log scale on
-    visualsNeedUpdate |= ImGui::SliderFloat("Linear Vector Scale", &m_config.Display.differentialScale, 1e-9f, 1e-5f, "%.3e", ImGuiSliderFlags_Logarithmic); // Use log scale for slider itself
+    visualsNeedUpdate |= ImGui::SliderFloat("Linear Vector Scale", &m_config.Display.differentialScale, 0.01f, 10.0f, "%.2f");
     ImGui::EndDisabled();
 
     if (visualsNeedUpdate) {

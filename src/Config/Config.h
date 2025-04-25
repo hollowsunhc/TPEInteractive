@@ -10,7 +10,7 @@ struct ConfigType {
 
     struct {
         bool useLogScale = false;
-        float differentialScale = 1.0f / 2000000.0f;
+        float differentialScale = 1.0f;
         float targetMaxLogScale = 1.0f;
         bool showObstacles = false;
     } Display;
