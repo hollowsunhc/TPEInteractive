@@ -98,7 +98,7 @@ SceneDefinition ExampleLoader::CreateFCC4SphereScene() {
     std::array<Real, 3> region_min = {-5., -5., 0.};
     std::array<Real, 3> region_max = {5.,  5.,  5.};
     double sphereRadius = 1.5;
-    double centerSeparation = 2.0 * sphereRadius;
+    double centerSeparation = 2.4 * sphereRadius;
     double boundaryMargin = 0.12;
     auto raw_data_fcc = createFCCLatticeSpheres(
         region_min, region_max, sphereRadius, centerSeparation, boundaryMargin
@@ -121,7 +121,7 @@ SceneDefinition ExampleLoader::CreateFCC4SphereScene() {
     }
 
     // --- Set camera position and look at ---
-    scene.initialCameraPosition = {0.f, 0.f, -7.f};
+    scene.initialCameraPosition = {0.f, 0.f, -8.f};
     scene.initialCameraLookAt = {0.f, 0.f, 2.5f};
 
     return scene;
