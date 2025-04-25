@@ -1,0 +1,6 @@
+[submodule "vendor/Repulsor/Repulsor"]
+	path = vendor/Repulsor/Repulsor
+	url = https://github.com/hollowsunhc/Repulsor
+[submodule "vendor/polyscope"]
+	path = vendor/polyscope
+	url = https://github.com/hollowsunhc/polyscope

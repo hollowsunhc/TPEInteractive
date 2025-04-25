@@ -1,0 +1,40 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Run TPEInteractive (MKL)",
+        "type": "cppvsdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/out/build/native/${command:cmake.buildType}/TPEInteractiveApp.exe",
+        "args": [],
+        "stopAtEntry": false,
+        "cwd": "${workspaceFolder}",
+        "environment": [
+          {
+            "name": "PATH",
+            "value": "C:/dev/install/intel-mkl-2024.0.0-windows-x64/intel-mkl/bin;${workspaceFolder}/out/build/native/vendor/polyscope/src/${command:cmake.buildType};${workspaceFolder}/out/build/native/vendor/polyscope/deps/imgui/${command:cmake.buildType};${workspaceFolder}/out/build/native/vendor/polyscope/deps/glfw/src/${command:cmake.buildType};${workspaceFolder}/out/build/native/vendor/polyscope/deps/glad/src/${command:cmake.buildType};${env:PATH}"
+          }
+        ],
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen",
+      },
+      {
+        "name": "Run TPEInteractive (OpenBLAS)",
+        "type": "cppvsdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/out/build/native/${command:cmake.buildType}/TPEInteractiveApp.exe",
+        "args": [],
+        "stopAtEntry": false,
+        "cwd": "${workspaceFolder}",
+        "environment": [
+          {
+            "name": "PATH",
+            "value": "C:/dev/install/OpenBLAS-0.3.29_x64/bin;${workspaceFolder}/out/build/native/vendor/polyscope/src/${command:cmake.buildType};${workspaceFolder}/out/build/native/vendor/polyscope/deps/imgui/${command:cmake.buildType};${workspaceFolder}/out/build/native/vendor/polyscope/deps/glfw/src/${command:cmake.buildType};${workspaceFolder}/out/build/native/vendor/polyscope/deps/glad/src/${command:cmake.buildType};${env:PATH}"
+          }
+        ],
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen",
+      },
+    ]
+  }
+  

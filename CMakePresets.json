@@ -1,0 +1,118 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "native-windows-base",
+            "displayName": "Windows Base Configuration (Ninja Multi-Config)",
+            "description": "Base settings for native Windows builds using clang-cl and Ninja Multi-Config",
+            "hidden": true,
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/out/build/native",
+
+            "cacheVariables": {
+                "BUILD_SHARED_LIBS": "OFF",
+                "CMAKE_C_COMPILER": "clang-cl.exe",
+                "CMAKE_CXX_COMPILER": "clang-cl.exe",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/native/TPEInteractive",
+                "CMAKE_MAKE_PROGRAM": "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe"
+            }
+        },
+        {
+            "name": "native-windows-MKL",
+            "displayName": "Windows Native (MKL Backend)",
+            "description": "Builds natively for Windows using MKL",
+            "inherits": "native-windows-base",
+            "cacheVariables": {
+                "TPE_BLAS_LAPACK_BACKEND": "MKL",
+                "MKL_DIR": "C:/dev/install/intel-mkl-2024.0.0-windows-x64/intel-mkl/lib/cmake/mkl",
+                "MKL_ARCH": "intel64",
+                "MKL_LINK": "dynamic",
+                "MKL_THREADING": "intel_thread",
+                "MKL_INTERFACE": "ilp64",
+                "MKL_MPI": "intelmpi"
+            }
+        },
+        {
+            "name": "native-windows-OpenBLAS",
+            "displayName": "Windows Native (OpenBLAS Backend)",
+            "description": "Builds natively for Windows using OpenBLAS",
+            "inherits": "native-windows-base",
+            "cacheVariables": {
+                "TPE_BLAS_LAPACK_BACKEND": "OpenBLAS",
+                "OpenBLAS_DIR": "C:/dev/install/OpenBLAS-0.3.29_x64/lib/cmake/openblas"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "native-MKL-debug",
+            "displayName": "MKL Debug",
+            "configurePreset": "native-windows-MKL",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
+            "configuration": "Debug",
+            "verbose": false
+        },
+        {
+            "name": "native-MKL-release",
+            "displayName": "MKL Release",
+            "configurePreset": "native-windows-MKL",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
+            "configuration": "Release",
+            "verbose": false
+        },
+        {
+            "name": "native-OpenBLAS-debug",
+            "displayName": "OpenBLAS Debug",
+            "configurePreset": "native-windows-OpenBLAS",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
+            "configuration": "Debug",
+            "verbose": false
+        },
+        {
+            "name": "native-OpenBLAS-release",
+            "displayName": "OpenBLAS Release",
+            "configurePreset": "native-windows-OpenBLAS",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
+            "configuration": "Release",
+            "verbose": false
+        }
+  ],
+  "testPresets": [],
+  "workflowPresets": [
+       {
+           "name": "windows-build-mkl-debug",
+           "steps": [ { "type": "configure", "name": "native-windows-MKL" }, { "type": "build", "name": "native-MKL-debug" } ]
+       },
+       {
+           "name": "windows-build-openblas-debug",
+           "steps": [ { "type": "configure", "name": "native-windows-OpenBLAS" }, { "type": "build", "name": "native-OpenBLAS-debug" } ]
+       }
+   ]
+}
