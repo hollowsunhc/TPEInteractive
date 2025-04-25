@@ -1,18 +1,17 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include <glm/glm.hpp>
+#include <map>
+#include <memory>
+#include <vector>
+
 #include "../Config/Config.h"
 #include "../Data/SceneDefinition.h"
 #include "../Engine/RepulsorEngine.h"
 #include "../Engine/VisualizationEngine.h"
 #include "../Scene/SceneManager.h"
 #include "../UI/UIManager.h"
-
-#include <glm/glm.hpp>
-
-#include <map>
-#include <memory>
-#include <vector>
 
 struct VizCalculationCache {
     // Store data needed for visualization
@@ -26,7 +25,7 @@ struct VizCalculationCache {
 };
 
 class Application {
-public:
+  public:
     Application();
     ~Application();
 
@@ -34,7 +33,7 @@ public:
     void Run();
 
     // --- Callbacks / Event Handlers ---
-    void MainLoopIteration(); // Called by Polyscope each frame
+    void MainLoopIteration();  // Called by Polyscope each frame
     void CheckGizmoInteraction();
 
     // --- Actions Triggered by UI ---
@@ -49,7 +48,7 @@ public:
     void RequestObstacleVisualToggle(bool show);
     void RequestVerbosityUpdate(int newLevel);
 
-private:
+  private:
     void SetupPolyscope();
     void LoadInitialScene();
     void CalculateAllDifferentialsInternal();
@@ -72,4 +71,4 @@ private:
     bool m_globalGradValid = false;
 };
 
-#endif // APPLICATION_H
+#endif  // APPLICATION_H

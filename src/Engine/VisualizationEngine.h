@@ -1,23 +1,22 @@
 #ifndef VISUALIZATION_ENGINE_H
 #define VISUALIZATION_ENGINE_H
 
-#include "../Utils/GlobalTypes.h" // For Real type if needed for vectors
-
 #include <glm/glm.hpp>
-
 #include <string>
 #include <vector>
+
+#include "../Utils/GlobalTypes.h"  // For Real type if needed for vectors
 
 class SceneObject;
 struct ConfigType;
 
 namespace polyscope {
-    enum class UpDir;
-    enum class FrontDir;
-}
+enum class UpDir;
+enum class FrontDir;
+}  // namespace polyscope
 
 class VisualizationEngine {
-public:
+  public:
     explicit VisualizationEngine(const ConfigType& config);
     ~VisualizationEngine() = default;
 
@@ -32,7 +31,8 @@ public:
     void UpdateActiveGizmo(const std::string& oldActiveName, const std::string& newActiveName);
 
     // --- Vector Visualization ---
-    void UpdateVectorQuantity(SceneObject& object, const std::string& quantityName, const std::vector<glm::vec3>& vectors);
+    void UpdateVectorQuantity(SceneObject& object, const std::string& quantityName,
+                              const std::vector<glm::vec3>& vectors);
     void RemoveVectorQuantity(SceneObject& object, const std::string& quantityName);
     void RemoveAllVectorQuantities(SceneObject& object);
 
@@ -43,11 +43,12 @@ public:
 
     // --- General ---
     void RequestRedraw();
-    void SetCameraView(const glm::vec3& position, const glm::vec3& lookAt, polyscope::UpDir upDir, polyscope::FrontDir frontDir);
+    void SetCameraView(const glm::vec3& position, const glm::vec3& lookAt, polyscope::UpDir upDir,
+                       polyscope::FrontDir frontDir);
     void ResetCamera();
 
-private:
-    const ConfigType& m_config; 
+  private:
+    const ConfigType& m_config;
 };
 
-#endif // VISUALIZATION_ENGINE_H
+#endif  // VISUALIZATION_ENGINE_H

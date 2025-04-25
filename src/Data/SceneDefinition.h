@@ -1,27 +1,24 @@
 #ifndef SCENE_DEFINITION_H
 #define SCENE_DEFINITION_H
 
-#include "MeshData.h"
-#include "../Utils/GlobalTypes.h"
-
 #include <glm/glm.hpp>
-
-#include <vector>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
+
+#include "../Utils/GlobalTypes.h"
+#include "MeshData.h"
 
 namespace polyscope {
-    enum class UpDir;
-    enum class FrontDir;
-}
-
+enum class UpDir;
+enum class FrontDir;
+}  // namespace polyscope
 
 enum class ExampleId {
     FCC_4,
     TWO_SPHERES
     // Add other examples here
 };
-
 
 // Defines the static properties of an object in a scene
 struct SceneObjectDefinition {
@@ -35,14 +32,12 @@ struct SceneObjectDefinition {
 
     SceneObjectDefinition() = default;
 
-    SceneObjectDefinition(int _id, std::string _name, std::shared_ptr<MeshData> _mesh,
-                          bool _interactive, bool _obstacleSource, bool _simulated,
-                          std::vector<int> _obstacleIds)
-        : id(_id), baseName(std::move(_name)), meshData(std::move(_mesh)),
-          isInteractive(_interactive), isObstacleSource(_obstacleSource), isSimulated(_simulated),
-          obstacleDefinitionIds(std::move(_obstacleIds)) {}
+    SceneObjectDefinition(int _id, std::string _name, std::shared_ptr<MeshData> _mesh, bool _interactive,
+                          bool _obstacleSource, bool _simulated, std::vector<int> _obstacleIds)
+        : id(_id), baseName(std::move(_name)), meshData(std::move(_mesh)), isInteractive(_interactive),
+          isObstacleSource(_obstacleSource), isSimulated(_simulated), obstacleDefinitionIds(std::move(_obstacleIds)) {
+    }
 };
-
 
 // Defines a complete scene setup
 struct SceneDefinition {
@@ -54,4 +49,4 @@ struct SceneDefinition {
     polyscope::FrontDir frontDir;
 };
 
-#endif // SCENE_DEFINITION_H
+#endif  // SCENE_DEFINITION_H

@@ -1,7 +1,4 @@
 #include "Application.h"
-#include "../Examples/ExampleLoader.h"
-#include "../Utils/Helpers.h"
-#include "../Scene/SceneObject.h"
 
 #include <polyscope/options.h>
 #include <polyscope/polyscope.h>
@@ -9,16 +6,19 @@
 
 #include <iostream>
 
-namespace { // Anonymous namespace for file-local scope
-    Application* g_appInstance = nullptr;
+#include "../Examples/ExampleLoader.h"
+#include "../Scene/SceneObject.h"
+#include "../Utils/Helpers.h"
 
-    void PolyscopeCallback() {
-        if (g_appInstance) {
-            g_appInstance->MainLoopIteration();
-        }
+namespace {  // Anonymous namespace for file-local scope
+Application* g_appInstance = nullptr;
+
+void PolyscopeCallback() {
+    if (g_appInstance) {
+        g_appInstance->MainLoopIteration();
     }
 }
-
+}  // namespace
 
 Application::Application() {
     if (g_appInstance) {
@@ -27,12 +27,10 @@ Application::Application() {
     g_appInstance = this;
 }
 
-
 Application::~Application() {
     g_appInstance = nullptr;
     polyscope::shutdown();
 }
-
 
 void Application::Initialize(int argc, char** argv) {
     polyscope::options::programName = "TPE Interactive";
@@ -48,34 +46,33 @@ void Application::Initialize(int argc, char** argv) {
     LoadInitialScene();
 }
 
-
 void Application::SetupPolyscope() {
     polyscope::state::userCallback = PolyscopeCallback;
 }
-
 
 void Application::LoadInitialScene() {
     RequestExampleLoad(m_currentExample);
 }
 
-
 void Application::Run() {
     polyscope::show();
 }
-
 
 void Application::MainLoopIteration() {
     m_uiManager->DrawUI();
     CheckGizmoInteraction();
 }
 
-
 void Application::CheckGizmoInteraction() {
     int activeObjId = m_sceneManager->GetActiveObjectId();
-    if (activeObjId == -1) return; // No active object
+    if (activeObjId == -1) {
+        return;  // No active object
+    }
 
     SceneObject* activeObj = m_sceneManager->GetObjectById(activeObjId);
-    if (!activeObj || !activeObj->IsInteractive()) return;
+    if (!activeObj || !activeObj->IsInteractive()) {
+        return;
+    }
 
     auto* psMesh = polyscope::getSurfaceMesh(activeObj->GetUniqueName());
 
@@ -86,7 +83,7 @@ void Application::CheckGizmoInteraction() {
 
             m_sceneManager->UpdateObjectTransform(activeObjId, currentGizmoTransform);
             InvalidateCalculationCache();
-            
+
             if (m_config.Interactivity.realTimeDiff) {
                 CalculateAllDifferentialsInternal();
                 UpdateDifferentialVisualsInternal();
@@ -100,7 +97,6 @@ void Application::CheckGizmoInteraction() {
     }
 }
 
-
 void Application::RequestExampleLoad(ExampleId exampleId) {
     polyscope::info("Application: Requesting load for example ID: " + std::to_string(static_cast<int>(exampleId)));
     m_currentExample = exampleId;
@@ -108,7 +104,8 @@ void Application::RequestExampleLoad(ExampleId exampleId) {
         m_vizEngine->RemoveAllObjects();
         InvalidateCalculationCache();
         SceneDefinition sceneDef = ExampleLoader::LoadExample(exampleId);
-        m_vizEngine->SetCameraView(sceneDef.initialCameraPosition, sceneDef.initialCameraLookAt, sceneDef.upDir, sceneDef.frontDir);
+        m_vizEngine->SetCameraView(sceneDef.initialCameraPosition, sceneDef.initialCameraLookAt, sceneDef.upDir,
+                                   sceneDef.frontDir);
         bool loaded = m_sceneManager->LoadScene(sceneDef);
         if (!loaded) {
             polyscope::error("Application: Scene loading failed.");
@@ -122,9 +119,10 @@ void Application::RequestExampleLoad(ExampleId exampleId) {
     m_vizEngine->RequestRedraw();
 }
 
-
 void Application::RequestPhysicsStep(int iterations) {
-    if (iterations <= 0) return;
+    if (iterations <= 0) {
+        return;
+    }
     InvalidateCalculationCache();
     m_sceneManager->ApplyPhysicsStep(iterations);
 
@@ -142,7 +140,8 @@ void Application::RequestPhysicsStep(int iterations) {
                 UpdateGradientVisualsInternal();
             } else {
                 polyscope::warning("Application: Skipping post-step gradient calculation as differential failed.");
-                UpdateGradientVisualsInternal(); // This will remove visuals if m_globalGradValid is false
+                UpdateGradientVisualsInternal();  // This will remove visuals if m_globalGradValid
+                                                  // is false
             }
             visuals_updated = true;
         }
@@ -153,29 +152,26 @@ void Application::RequestPhysicsStep(int iterations) {
     }
 }
 
-
 void Application::RequestRepulsorParamUpdate() {
     polyscope::info("Application: Repulsor parameter update requested.");
     InvalidateCalculationCache();
-    m_sceneManager->UpdateEngineParametersForAllObjects(); // Needs implementing in SceneManager
+    m_sceneManager->UpdateEngineParametersForAllObjects();  // Needs implementing in SceneManager
 }
-
 
 void Application::RequestPrintEnergy() {
     polyscope::info("--- Energy Report ---");
-    for(const auto& objPtr : m_sceneManager->GetObjects()) {
-        if(objPtr->IsSimulated()) {
+    for (const auto& objPtr : m_sceneManager->GetObjects()) {
+        if (objPtr->IsSimulated()) {
             try {
                 Real energy = m_repulsorEngine->GetEnergy(*objPtr);
                 polyscope::info(objPtr->GetUniqueName() + ": " + std::to_string(energy));
-            } catch(...) {
+            } catch (...) {
                 polyscope::info(objPtr->GetUniqueName() + ": Error calculating energy.");
             }
         }
     }
     polyscope::info("---------------------");
 }
-
 
 void Application::RequestDebugMeshCreation(int objectId) {
     SceneObject* obj = m_sceneManager->GetObjectById(objectId);
@@ -219,7 +215,6 @@ void Application::RequestDebugMeshCreation(int objectId) {
     m_vizEngine->RequestRedraw();
 }
 
-
 void Application::InvalidateCalculationCache() {
     polyscope::info("Application: Invalidating calculation cache and visuals...");
     m_vizCache.clear();
@@ -235,35 +230,39 @@ void Application::InvalidateCalculationCache() {
                     m_vizEngine->RemoveVectorQuantity(*objPtr, "Differential");
                     m_vizEngine->RemoveVectorQuantity(*objPtr, "Gradient");
                 } else {
-                    polyscope::warning("  InvalidateCache: Found structure '" + meshName + "' but failed getSurfaceMesh.");
+                    polyscope::warning("  InvalidateCache: Found structure '" + meshName +
+                                       "' but failed getSurfaceMesh.");
                 }
             } else {
                 polyscope::info("  InvalidateCache: Skipping vector removal for non-existent mesh: " + meshName);
-            }  
+            }
         }
-    }
-    else {
+    } else {
         polyscope::warning("Application::InvalidateCalculationCache - SceneManager or VizEngine is null.");
     }
     m_vizEngine->RequestRedraw();
 }
 
-
 void Application::CalculateAllDifferentialsInternal() {
     polyscope::info("Application: Calculating all differentials...");
-    if (!m_repulsorEngine || !m_sceneManager) return;
+    if (!m_repulsorEngine || !m_sceneManager) {
+        return;
+    }
 
     InvalidateCalculationCache();
     bool all_ok = true;
 
     for (const auto& objPtr : m_sceneManager->GetObjects()) {
-        if (!objPtr->IsSimulated() || !objPtr->GetRepulsorMesh()) continue;
+        if (!objPtr->IsSimulated() || !objPtr->GetRepulsorMesh()) {
+            continue;
+        }
 
         int id = objPtr->GetId();
         m_vizCache[id] = VizCalculationCache();
 
         try {
-            Tensors::Tensor2<Real, Int> diff_tensor = m_repulsorEngine->GetDifferential(*objPtr); // Needs implementing in Engine
+            Tensors::Tensor2<Real, Int> diff_tensor =
+                m_repulsorEngine->GetDifferential(*objPtr);  // Needs implementing in Engine
             m_vizCache[id].diff_glm = Utils::tensorToGlmVec3(diff_tensor);
             m_vizCache[id].diff_valid = true;
 
@@ -274,29 +273,36 @@ void Application::CalculateAllDifferentialsInternal() {
         }
     }
     m_globalDiffValid = all_ok;
-    polyscope::info("Differential calculation complete. Overall validity: " + std::string(m_globalDiffValid ? "OK" : "FAILED"));
+    polyscope::info("Differential calculation complete. Overall validity: " +
+                    std::string(m_globalDiffValid ? "OK" : "FAILED"));
 }
-
 
 void Application::CalculateAllGradientsInternal() {
     polyscope::info("Application: Calculating all gradients...");
-    if (!m_repulsorEngine || !m_sceneManager) return;
+    if (!m_repulsorEngine || !m_sceneManager) {
+        return;
+    }
 
     if (!m_globalDiffValid) {
         polyscope::warning("Application: Cannot calculate gradients, differentials invalid.");
-        m_globalGradValid = false; // Ensure grad is marked invalid
-        for(auto& pair : m_vizCache) { pair.second.grad_valid = false; } // Mark all cache entries
+        m_globalGradValid = false;  // Ensure grad is marked invalid
+        for (auto& pair : m_vizCache) {
+            pair.second.grad_valid = false;
+        }  // Mark all cache entries
         return;
     }
 
     bool all_ok = true;
     for (const auto& objPtr : m_sceneManager->GetObjects()) {
-        if (!objPtr->IsSimulated() || !objPtr->GetRepulsorMesh()) continue;
+        if (!objPtr->IsSimulated() || !objPtr->GetRepulsorMesh()) {
+            continue;
+        }
 
         int id = objPtr->GetId();
 
         if (!m_vizCache.count(id) || !m_vizCache[id].diff_valid) {
-            polyscope::warning("Application: Skipping gradient for " + objPtr->GetUniqueName() + ", differential invalid/missing.");
+            polyscope::warning("Application: Skipping gradient for " + objPtr->GetUniqueName() +
+                               ", differential invalid/missing.");
             m_vizCache[id].grad_valid = false;
             all_ok = false;
             continue;
@@ -314,13 +320,15 @@ void Application::CalculateAllGradientsInternal() {
         }
     }
     m_globalGradValid = all_ok;
-    polyscope::info("Gradient calculation complete. Overall validity: " + std::string(m_globalGradValid ? "OK" : "FAILED"));
+    polyscope::info("Gradient calculation complete. Overall validity: " +
+                    std::string(m_globalGradValid ? "OK" : "FAILED"));
 }
-
 
 void Application::UpdateDifferentialVisualsInternal() {
     polyscope::info("Application: Updating differential visuals...");
-    if (!m_vizEngine || !m_sceneManager) return;
+    if (!m_vizEngine || !m_sceneManager) {
+        return;
+    }
 
     for (const auto& objPtr : m_sceneManager->GetObjects()) {
         int id = objPtr->GetId();
@@ -333,10 +341,11 @@ void Application::UpdateDifferentialVisualsInternal() {
     m_vizEngine->RequestRedraw();
 }
 
-
 void Application::UpdateGradientVisualsInternal() {
     polyscope::info("Application: Updating gradient visuals...");
-    if (!m_vizEngine || !m_sceneManager) return;
+    if (!m_vizEngine || !m_sceneManager) {
+        return;
+    }
 
     for (const auto& objPtr : m_sceneManager->GetObjects()) {
         int id = objPtr->GetId();
@@ -349,12 +358,10 @@ void Application::UpdateGradientVisualsInternal() {
     m_vizEngine->RequestRedraw();
 }
 
-
 void Application::RequestCalculateAndShowDifferential() {
     CalculateAllDifferentialsInternal();
     UpdateDifferentialVisualsInternal();
 }
-
 
 void Application::RequestCalculateAndShowGradient() {
     if (!m_globalDiffValid) {
@@ -371,14 +378,12 @@ void Application::RequestCalculateAndShowGradient() {
     }
 }
 
-
 void Application::RequestVectorVisualsUpdate() {
     // Called when display config (log scale, linear scale) changes
     polyscope::info("Application: Updating vector visuals based on display settings...");
     UpdateDifferentialVisualsInternal();
     UpdateGradientVisualsInternal();
 }
-
 
 void Application::RequestObstacleVisualToggle(bool show) {
     m_config.Display.showObstacles = show;
@@ -391,10 +396,14 @@ void Application::RequestObstacleVisualToggle(bool show) {
 
 void Application::RequestVerbosityUpdate(int newLevel) {
     // Clamp level just in case
-    if (newLevel < 0) newLevel = 0;
-    if (newLevel > 2) newLevel = 2; // Polyscope typically uses 0, 1, 2
+    if (newLevel < 0) {
+        newLevel = 0;
+    }
+    if (newLevel > 2) {
+        newLevel = 2;  // Polyscope typically uses 0, 1, 2
+    }
 
     polyscope::options::verbosity = newLevel;
-    m_config.Debug.verbosity = newLevel; // Ensure config stays in sync
+    m_config.Debug.verbosity = newLevel;  // Ensure config stays in sync
     polyscope::info("Application: Verbosity set to " + std::to_string(newLevel));
 }

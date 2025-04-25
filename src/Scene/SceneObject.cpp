@@ -2,14 +2,9 @@
 
 #include <stdexcept>
 
-SceneObject::SceneObject(const SceneObjectDefinition& def) :
-    m_id(def.id),
-    m_baseName(def.baseName),
-    m_isInteractive(def.isInteractive),
-    m_isObstacleSource(def.isObstacleSource),
-    m_isSimulated(def.isSimulated),
-    m_meshDataRef(def.meshData)
-{
+SceneObject::SceneObject(const SceneObjectDefinition& def)
+    : m_id(def.id), m_baseName(def.baseName), m_isInteractive(def.isInteractive),
+      m_isObstacleSource(def.isObstacleSource), m_isSimulated(def.isSimulated), m_meshDataRef(def.meshData) {
     m_uniqueName = m_baseName + "_" + std::to_string(m_id);
 
     if (m_meshDataRef) {
@@ -19,11 +14,9 @@ SceneObject::SceneObject(const SceneObjectDefinition& def) :
     }
 }
 
-
 const std::vector<std::array<Real, amb_dim>>& SceneObject::GetInitialVertices() const {
     return m_initialVertices;
 }
-
 
 const std::vector<std::array<Int, 3>>& SceneObject::GetSimplices() const {
     if (!m_meshDataRef) {
@@ -32,7 +25,6 @@ const std::vector<std::array<Int, 3>>& SceneObject::GetSimplices() const {
     }
     return m_meshDataRef->simplices;
 }
-
 
 void SceneObject::UpdateInitialVertices(const std::vector<std::array<Real, amb_dim>>& local_deltas) {
     if (!m_isSimulated) {

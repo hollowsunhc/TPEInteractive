@@ -1,21 +1,21 @@
 #ifndef SCENE_MANAGER_H
 #define SCENE_MANAGER_H
 
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "../Data/SceneDefinition.h"
 #include "../Engine/RepulsorEngine.h"
 #include "../Utils/Helpers.h"
-
-#include <vector>
-#include <string>
-#include <memory>
-#include <map>
 
 class RepulsorEngine;
 class VisualizationEngine;
 struct ConfigType;
 
 class SceneManager {
-public:
+  public:
     SceneManager(RepulsorEngine& repulsorEngine, VisualizationEngine& vizEngine, const ConfigType& config);
     ~SceneManager() = default;
 
@@ -31,19 +31,22 @@ public:
 
     // Getters for UI or other components
     const std::vector<std::unique_ptr<SceneObject>>& GetObjects() const;
-    SceneObject* GetObjectById(int id); // Returns nullptr if not found
+    SceneObject* GetObjectById(int id);  // Returns nullptr if not found
     SceneObject* GetActiveObject();
-    int GetActiveObjectId() const { return m_activeObjectId; }
+    int GetActiveObjectId() const {
+        return m_activeObjectId;
+    }
     bool SetActiveObjectId(int id);
-    //const SceneDefinition* GetCurrentSceneDefinition() const;
+    // const SceneDefinition* GetCurrentSceneDefinition() const;
 
-private:
+  private:
     // Core simulation logic separated for clarity
     bool CalculateAndApplyPhysicsUpdates(std::map<int, Utils::IterationData>& results);
-    void SynchronizeObjectState(int objectId, const glm::mat4& newTransform); // Internal gizmo update handler
+    void SynchronizeObjectState(int objectId,
+                                const glm::mat4& newTransform);  // Internal gizmo update handler
 
     // --- Obstacle Logic ---
-    void UpdateObstaclesForAllObjects(); // Called after any state change
+    void UpdateObstaclesForAllObjects();  // Called after any state change
     Utils::CombinedObstacleGeometry CalculateCombinedObstacleGeometryForObject(int targetObjectId);
     void UpdateRepulsorObstacleForObject(SceneObject& targetObject, const Utils::CombinedObstacleGeometry& obsGeo);
 
@@ -56,4 +59,4 @@ private:
     int m_activeObjectId = -1;
 };
 
-#endif // SCENE_MANAGER_H
+#endif  // SCENE_MANAGER_H

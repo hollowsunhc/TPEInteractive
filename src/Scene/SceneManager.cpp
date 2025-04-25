@@ -1,17 +1,18 @@
 #include "SceneManager.h"
-#include "SceneObject.h"
-#include "../Engine/RepulsorEngine.h"
-#include "../Engine/VisualizationEngine.h"
-#include "../Config/Config.h"
-#include "../Utils/Helpers.h"
 
-#include <glm/gtc/matrix_inverse.hpp>
 #include <polyscope/polyscope.h>
 
+#include <glm/gtc/matrix_inverse.hpp>
+
+#include "../Config/Config.h"
+#include "../Engine/RepulsorEngine.h"
+#include "../Engine/VisualizationEngine.h"
+#include "../Utils/Helpers.h"
+#include "SceneObject.h"
 
 SceneManager::SceneManager(RepulsorEngine& repulsorEngine, VisualizationEngine& vizEngine, const ConfigType& config)
-    : m_repulsorEngine(repulsorEngine), m_vizEngine(vizEngine), m_config(config) {}
-
+    : m_repulsorEngine(repulsorEngine), m_vizEngine(vizEngine), m_config(config) {
+}
 
 Utils::CombinedObstacleGeometry SceneManager::CalculateCombinedObstacleGeometryForObject(int targetObjectId) {
     Utils::CombinedObstacleGeometry result;
@@ -29,7 +30,8 @@ Utils::CombinedObstacleGeometry SceneManager::CalculateCombinedObstacleGeometryF
         }
     }
     if (!targetObjDefPtr) {
-        polyscope::warning("CalcCombineObstacle: Could not find SceneObjectDefinition for target ID " + std::to_string(targetObjectId));
+        polyscope::warning("CalcCombineObstacle: Could not find SceneObjectDefinition for target ID " +
+                           std::to_string(targetObjectId));
         return result;
     }
     const auto& targetObjDef = *targetObjDefPtr;
@@ -37,7 +39,7 @@ Utils::CombinedObstacleGeometry SceneManager::CalculateCombinedObstacleGeometryF
     // Determine Source SceneObjectDefinitions
     std::vector<const SceneObjectDefinition*> sourceDefs;
     if (targetObjDef.obstacleDefinitionIds.empty()) {
-        result.success = true; // No obstacle defined is a success (empty result)
+        result.success = true;  // No obstacle defined is a success (empty result)
         return result;
     }
 
@@ -52,7 +54,9 @@ Utils::CombinedObstacleGeometry SceneManager::CalculateCombinedObstacleGeometryF
         // Combine specific objects by ID
         std::map<int, const SceneObjectDefinition*> sourceMap;
         for (const auto& def : m_currentSceneDef->objectDefs) {
-            if (def.isObstacleSource) sourceMap[def.id] = &def;
+            if (def.isObstacleSource) {
+                sourceMap[def.id] = &def;
+            }
         }
         for (int source_id : targetObjDef.obstacleDefinitionIds) {
             if (source_id != targetObjDef.id && sourceMap.count(source_id)) {
@@ -62,7 +66,7 @@ Utils::CombinedObstacleGeometry SceneManager::CalculateCombinedObstacleGeometryF
     }
 
     if (sourceDefs.empty()) {
-        result.success = true; // No valid sources found is a success (empty result)
+        result.success = true;  // No valid sources found is a success (empty result)
         return result;
     }
 
@@ -72,20 +76,23 @@ Utils::CombinedObstacleGeometry SceneManager::CalculateCombinedObstacleGeometryF
         const auto& sourceDef = *sourceDefPtr;
 
         // Find the corresponding runtime SceneObject for this source definition
-        SceneObject* sourceRuntimeObj = GetObjectById(sourceDef.id); // Use helper
+        SceneObject* sourceRuntimeObj = GetObjectById(sourceDef.id);  // Use helper
         if (!sourceRuntimeObj) {
-            polyscope::warning("CalcCombineObstacle: Could not find Runtime Object for source ID " + std::to_string(sourceDef.id));
-            continue; // Skip this source
+            polyscope::warning("CalcCombineObstacle: Could not find Runtime Object for source ID " +
+                               std::to_string(sourceDef.id));
+            continue;  // Skip this source
         }
 
         // Get source's INITIAL vertices, CURRENT transform, and simplices definition
-        const auto& sourceInitialVertices = sourceRuntimeObj->GetInitialVertices(); // Get from runtime obj
+        const auto& sourceInitialVertices = sourceRuntimeObj->GetInitialVertices();  // Get from runtime obj
         const auto& sourceTransform = sourceRuntimeObj->GetCurrentTransform();       // Get from runtime obj
-        const auto* sourceSimplicesPtr = sourceDef.meshData ? &sourceDef.meshData->simplices : nullptr; // Get from definition
+        const auto* sourceSimplicesPtr =
+            sourceDef.meshData ? &sourceDef.meshData->simplices : nullptr;  // Get from definition
 
         if (sourceInitialVertices.empty() || !sourceSimplicesPtr || sourceSimplicesPtr->empty()) {
-            polyscope::warning("CalcCombineObstacle: Skipping source " + sourceDef.baseName + std::to_string(sourceDef.id) + " (missing geom).");
-            continue; // Skip invalid source
+            polyscope::warning("CalcCombineObstacle: Skipping source " + sourceDef.baseName +
+                               std::to_string(sourceDef.id) + " (missing geom).");
+            continue;  // Skip invalid source
         }
         const auto& sourceSimplices = *sourceSimplicesPtr;
 
@@ -94,33 +101,31 @@ Utils::CombinedObstacleGeometry SceneManager::CalculateCombinedObstacleGeometryF
             Utils::applyTransform(sourceInitialVertices, sourceTransform);
 
         // Append transformed vertices and adjusted simplices
-        result.combined_world_vertices.insert(
-            result.combined_world_vertices.end(),
-            transformedSourceVerts.begin(), transformedSourceVerts.end()
-        );
+        result.combined_world_vertices.insert(result.combined_world_vertices.end(), transformedSourceVerts.begin(),
+                                              transformedSourceVerts.end());
         for (const auto& simplex_orig : sourceSimplices) {
-            result.combined_simplices.push_back({
-                simplex_orig[0] + current_vertex_offset,
-                simplex_orig[1] + current_vertex_offset,
-                simplex_orig[2] + current_vertex_offset
-            });
+            result.combined_simplices.push_back({simplex_orig[0] + current_vertex_offset,
+                                                 simplex_orig[1] + current_vertex_offset,
+                                                 simplex_orig[2] + current_vertex_offset});
         }
         current_vertex_offset += transformedSourceVerts.size();
-    } // End loop over sources
+    }  // End loop over sources
 
     result.success = true;
     return result;
 }
 
-
-void SceneManager::UpdateRepulsorObstacleForObject(SceneObject& targetObject, const Utils::CombinedObstacleGeometry& obsGeo) {
+void SceneManager::UpdateRepulsorObstacleForObject(SceneObject& targetObject,
+                                                   const Utils::CombinedObstacleGeometry& obsGeo) {
     Mesh_T* targetMesh = targetObject.GetRepulsorMesh();
     if (!targetMesh) {
-        polyscope::warning("UpdateRepulsorObstacle: Target object " + targetObject.GetUniqueName() + " has no Repulsor mesh.");
+        polyscope::warning("UpdateRepulsorObstacle: Target object " + targetObject.GetUniqueName() +
+                           " has no Repulsor mesh.");
         return;
     }
     if (!obsGeo.success) {
-        polyscope::error("UpdateRepulsorObstacle: Input geometry calculation failed for " + targetObject.GetUniqueName() + ". Obstacle not updated.");
+        polyscope::error("UpdateRepulsorObstacle: Input geometry calculation failed for " +
+                         targetObject.GetUniqueName() + ". Obstacle not updated.");
         return;
     }
 
@@ -130,34 +135,37 @@ void SceneManager::UpdateRepulsorObstacleForObject(SceneObject& targetObject, co
     std::unique_ptr<Mesh_T> newObstacleMesh = nullptr;
 
     if (v_count > 0 && f_count > 0) {
-        newObstacleMesh = m_repulsorEngine.CreateObstacleMesh(
-            obsGeo.combined_world_vertices,
-            obsGeo.combined_simplices
-        );
+        newObstacleMesh =
+            m_repulsorEngine.CreateObstacleMesh(obsGeo.combined_world_vertices, obsGeo.combined_simplices);
         if (!newObstacleMesh) {
-            polyscope::error("UpdateRepulsorObstacle: RepulsorEngine failed to create new obstacle mesh for " + targetObject.GetUniqueName() + ". Obstacle not updated.");
+            polyscope::error("UpdateRepulsorObstacle: RepulsorEngine failed to create new obstacle mesh for " +
+                             targetObject.GetUniqueName() + ". Obstacle not updated.");
             return;
         }
 
     } else {
-        polyscope::info("UpdateRepulsorObstacle: Combined obstacle for " + targetObject.GetUniqueName() + " is empty. No obstacle loaded/cleared.");
+        polyscope::info("UpdateRepulsorObstacle: Combined obstacle for " + targetObject.GetUniqueName() +
+                        " is empty. No obstacle loaded/cleared.");
     }
 
     // --- Load the new mesh ---
-    if (newObstacleMesh) { // Only attempt load if we have a valid mesh ptr
+    if (newObstacleMesh) {  // Only attempt load if we have a valid mesh ptr
         try {
             targetMesh->LoadObstacle(std::move(newObstacleMesh));
         } catch (const std::exception& e) {
-            polyscope::error("UpdateRepulsorObstacle: Exception during LoadObstacle for " + targetObject.GetUniqueName() + ": " + std::string(e.what()));
+            polyscope::error("UpdateRepulsorObstacle: Exception during LoadObstacle for " +
+                             targetObject.GetUniqueName() + ": " + std::string(e.what()));
         }
     } else {
-        polyscope::info("UpdateRepulsorObstacle: No valid new obstacle mesh created/provided for " + targetObject.GetUniqueName() + ". Existing obstacle remains unchanged.");
+        polyscope::info("UpdateRepulsorObstacle: No valid new obstacle mesh created/provided for " +
+                        targetObject.GetUniqueName() + ". Existing obstacle remains unchanged.");
     }
 }
 
-
 void SceneManager::UpdateObstaclesForAllObjects() {
-    if (!m_currentSceneDef) return;
+    if (!m_currentSceneDef) {
+        return;
+    }
 
     polyscope::info("Updating obstacles for all relevant objects...");
     std::vector<int> updated_object_ids;
@@ -182,7 +190,6 @@ void SceneManager::UpdateObstaclesForAllObjects() {
 
     polyscope::info("Obstacle updates complete.");
 }
-
 
 bool SceneManager::LoadScene(const SceneDefinition& sceneDef) {
     UnloadScene();
@@ -223,12 +230,11 @@ bool SceneManager::LoadScene(const SceneDefinition& sceneDef) {
     }
 
     // Tell VisualizationEngine about the initial active object (no previous one)
-    m_vizEngine.UpdateActiveGizmo("", activeObjectName); // Pass empty string for old name
+    m_vizEngine.UpdateActiveGizmo("", activeObjectName);  // Pass empty string for old name
 
     polyscope::info("Scene loaded successfully.");
     return true;
 }
-
 
 void SceneManager::UnloadScene() {
     polyscope::info("SceneManager: Unloading current scene...");
@@ -239,10 +245,11 @@ void SceneManager::UnloadScene() {
     polyscope::info("SceneManager: Scene unloaded.");
 }
 
-
 void SceneManager::UpdateObjectTransform(int objectId, const glm::mat4& newTransform) {
     SceneObject* obj = GetObjectById(objectId);
-    if (!obj) return;
+    if (!obj) {
+        return;
+    }
 
     if (Utils::matricesAreClose(obj->GetCurrentTransform(), newTransform)) {
         return;
@@ -250,7 +257,6 @@ void SceneManager::UpdateObjectTransform(int objectId, const glm::mat4& newTrans
 
     SynchronizeObjectState(objectId, newTransform);
 }
-
 
 void SceneManager::ApplyPhysicsStep(int iterations) {
     polyscope::info("SceneManager: Applying " + std::to_string(iterations) + " physics step(s)...");
@@ -264,22 +270,21 @@ void SceneManager::ApplyPhysicsStep(int iterations) {
         step_ok = CalculateAndApplyPhysicsUpdates(iteration_results);
 
         if (!step_ok) {
-            polyscope::error("Physics step " + std::to_string(iter + 1) + " failed during calculation or application. Stopping iterations.");
+            polyscope::error("Physics step " + std::to_string(iter + 1) +
+                             " failed during calculation or application. Stopping iterations.");
             break;
         }
 
         UpdateObstaclesForAllObjects();
-
     }
 
     polyscope::info("Physics step(s) application attempt finished.");
     m_vizEngine.RequestRedraw();
 }
 
-
 void SceneManager::UpdateEngineParametersForAllObjects() {
     polyscope::info("SceneManager: Updating Repulsor parameters from config...");
-    m_repulsorEngine.UpdateEngineParameters(); // Handles p/q changes
+    m_repulsorEngine.UpdateEngineParameters();  // Handles p/q changes
 
     for (auto& objPtr : m_objects) {
         if (objPtr->IsSimulated() && objPtr->GetRepulsorMesh()) {
@@ -289,11 +294,9 @@ void SceneManager::UpdateEngineParametersForAllObjects() {
     polyscope::info("SceneManager: Parameter update request complete.");
 }
 
-
 SceneObject* SceneManager::GetActiveObject() {
     return GetObjectById(m_activeObjectId);
 }
-
 
 bool SceneManager::SetActiveObjectId(int id) {
     SceneObject* newActiveObj = GetObjectById(id);
@@ -322,9 +325,10 @@ bool SceneManager::SetActiveObjectId(int id) {
     return false;
 }
 
-
 SceneObject* SceneManager::GetObjectById(int id) {
-    if (id == -1) return nullptr;
+    if (id == -1) {
+        return nullptr;
+    }
     for (auto& objPtr : m_objects) {
         if (objPtr->GetId() == id) {
             return objPtr.get();
@@ -333,17 +337,17 @@ SceneObject* SceneManager::GetObjectById(int id) {
     return nullptr;
 }
 
-
 const std::vector<std::unique_ptr<SceneObject>>& SceneManager::GetObjects() const {
     return m_objects;
 }
-
 
 void SceneManager::SynchronizeObjectState(int objectId, const glm::mat4& newTransform) {
     // NOTE: This function assumes the caller (UpdateObjectTransform) has already
     //       validated the objectId and checked if the transform actually changed.
     SceneObject* obj = GetObjectById(objectId);
-    if (!obj) return;
+    if (!obj) {
+        return;
+    }
 
     obj->SetCurrentTransform(newTransform);
 
@@ -356,14 +360,15 @@ void SceneManager::SynchronizeObjectState(int objectId, const glm::mat4& newTran
     }
 }
 
-
 bool SceneManager::CalculateAndApplyPhysicsUpdates(std::map<int, Utils::IterationData>& results) {
     bool any_calc_failed = false;
     results.clear();
 
     // --- Calculate Updates ---
     for (auto& objPtr : m_objects) {
-        if (!objPtr->IsSimulated() || !objPtr->GetRepulsorMesh()) continue;
+        if (!objPtr->IsSimulated() || !objPtr->GetRepulsorMesh()) {
+            continue;
+        }
 
         int id = objPtr->GetId();
         results[id] = Utils::IterationData();
@@ -398,8 +403,8 @@ bool SceneManager::CalculateAndApplyPhysicsUpdates(std::map<int, Utils::Iteratio
             const auto& world_disp = resultData.world_displacement;
             local_delta_vec.reserve(world_disp.Dimension(0));
 
-            for(int v=0; v < world_disp.Dimension(0); ++v) {
-                glm::vec4 world_d = {(float)world_disp(v,0), (float)world_disp(v,1), (float)world_disp(v,2), 0.0f};
+            for (int v = 0; v < world_disp.Dimension(0); ++v) {
+                glm::vec4 world_d = {(float)world_disp(v, 0), (float)world_disp(v, 1), (float)world_disp(v, 2), 0.0f};
                 glm::vec4 local_d = invTransform * world_d;
                 local_delta_vec.push_back({(Real)local_d.x, (Real)local_d.y, (Real)local_d.z});
             }

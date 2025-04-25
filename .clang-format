@@ -1,0 +1,78 @@
+# TPEInteractive .clang-format Configuration
+# Based on common styles like LLVM/Google with modifications
+
+Language: Cpp
+BasedOnStyle: LLVM # Start with a common baseline (LLVM or Google are good starts)
+
+# --- Indentation ---
+IndentWidth: 4           # Use 4 spaces for indentation
+UseTab: Never            # Use spaces, not tabs
+TabWidth: 4              # How wide a tab character is displayed (if UseTab was true)
+ContinuationIndentWidth: 4 # Indentation for continued lines
+
+# --- Braces ---
+BreakBeforeBraces: Attach # { on same line
+AllowShortFunctionsOnASingleLine: None # Keep functions readable
+AllowShortBlocksOnASingleLine: false # No { int x=1; }
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: Never # Prefer braces even for single statements
+AllowShortLoopsOnASingleLine: false
+InsertBraces: true
+
+# --- Spacing ---
+SpacesInParentheses: false   # No space after ( or before )
+SpacesInSquareBrackets: false # No space after [ or before ]
+SpacesInAngles: false        # No space after < or before > in templates
+SpaceAfterCStyleCast: false  # No space after (int) x
+SpaceBeforeAssignmentOperators: true # Put space around = , += etc.
+SpaceBeforeParens: ControlStatements # Space before ( in if/for/while/switch, but not function calls like func()
+SpacesBeforeTrailingComments: 2 # Add some space before // comment
+
+# --- Line Breaking ---
+ColumnLimit: 120         # Try to wrap lines longer than 120 characters
+AllowAllParametersOfDeclarationOnNextLine: false # Try to fit parameters on one line if possible
+BinPackParameters: true  # Pack function parameters more tightly if they don't fit
+BinPackArguments: true   # Pack function arguments more tightly if they don't fit
+
+# --- Includes ---
+IncludeBlocks: Regroup    # Regroup includes into blocks
+IncludeCategories:        # Order of include blocks
+  - Regex: '^<.*\.h>'     # C system headers
+    Priority: 1
+  - Regex: '^<.*>'        # C++ standard library headers
+    Priority: 2
+  - Regex: '^(glm|Eigen)/' # Third-party libraries (add others like MKL if direct includes happen)
+    Priority: 3
+  - Regex: '^polyscope/'   # Polyscope includes
+    Priority: 4
+  - Regex: '^Repulsor/'    # Repulsor includes
+    Priority: 5
+  - Regex: '^\.\./'        # Relative includes from parent directories (Utils/, Data/, etc.)
+    Priority: 6
+  - Regex: '^\.'           # Relative includes from current directory
+    Priority: 7
+SortIncludes: true        # Sort includes alphabetically within blocks
+IncludeIsMainRegex: '(Test)?$'
+
+# --- Pointers and References ---
+PointerAlignment: Left   # Align pointer * or ref & to the right (e.g., int* p)
+DerivePointerAlignment: false # Don't guess pointer alignment based on surrounding code
+
+# --- Namespaces ---
+NamespaceIndentation: None  # Don't indent within namespaces { like this; }
+FixNamespaceComments: true # Add // namespace foo comments after closing brace
+
+# --- Classes ---
+BreakBeforeInheritanceComma: false
+BreakConstructorInitializers: BeforeColon # Break before the : in constructor initializers
+
+# --- Other ---
+AlignTrailingComments: true
+AllowShortLambdasOnASingleLine: Inline # Allow simple lambdas like []{ return true; }
+Cpp11Includes: true # Use <> for C++11 library includes
+Standard: c++20     # Specify C++ standard for newer syntax formatting
+
+# --- Potentially Controversial / Adjust to Taste ---
+# AlignConsecutiveAssignments: None # Align = signs vertically (None, AcrossEmptyLines, AcrossComments)
+# AlignConsecutiveDeclarations: None # Align variable names vertically
+# AlignOperands: Align # Align binary operators (like +,-) vertically

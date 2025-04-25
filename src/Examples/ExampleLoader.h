@@ -1,15 +1,15 @@
 #ifndef EXAMPLE_LOADER_H
 #define EXAMPLE_LOADER_H
 
-#include "../Data/SceneDefinition.h"
-
 #include <memory>
 
+#include "../Data/SceneDefinition.h"
+
 class ExampleLoader {
-public:
+  public:
     static SceneDefinition LoadExample(ExampleId exampleId);
 
-private:
+  private:
     static SceneDefinition CreateFCC4SphereScene();
     static SceneDefinition CreateTwoSphereScene();
 
@@ -20,4 +20,4 @@ private:
     static std::shared_ptr<MeshData> s_obstacleSphereTemplate;
 };
 
-#endif // EXAMPLE_LOADER_H
+#endif  // EXAMPLE_LOADER_H

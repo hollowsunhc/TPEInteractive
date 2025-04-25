@@ -10,6 +10,8 @@
 // These preprocessor symbols (TPE_USE_MKL, TPE_USE_OPENBLAS, etc.)
 // MUST be defined by the CMakeLists.txt based on TPE_BLAS_LAPACK_BACKEND choice.
 
+// THIS FILE IS MANUALLY INDENTED. DO NOT FORMAT.
+
 #ifdef TPE_USE_MKL
     #pragma message("BLASLAPACK_Types.h: Configuring for MKL backend.")
 

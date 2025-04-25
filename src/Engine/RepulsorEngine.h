@@ -1,20 +1,21 @@
 #ifndef REPULSOR_ENGINE_H
 #define REPULSOR_ENGINE_H
 
-#include "../Utils/GlobalTypes.h"
-#include "../Config/Config.h"
-
-#include <vector>
 #include <array>
 #include <memory>
 #include <mutex>
+#include <vector>
+
+#include "../Config/Config.h"
+#include "../Utils/GlobalTypes.h"
 
 class SceneObject;
-namespace Utils { struct CombinedObstacleGeometry; }
-
+namespace Utils {
+struct CombinedObstacleGeometry;
+}
 
 class RepulsorEngine {
-public:
+  public:
     explicit RepulsorEngine(const ConfigType& config);
     ~RepulsorEngine();
 
@@ -22,10 +23,8 @@ public:
     bool InitializeRepulsorMesh(SceneObject& object);
     bool UpdateRepulsorMeshState(SceneObject& object);
     void ApplyCurrentConfigToMesh(SceneObject& object);
-    std::unique_ptr<Mesh_T> CreateObstacleMesh(
-        const std::vector<std::array<Real, 3>>& vertices,
-        const std::vector<std::array<Int, 3>>& simplices
-    );
+    std::unique_ptr<Mesh_T> CreateObstacleMesh(const std::vector<std::array<Real, 3>>& vertices,
+                                               const std::vector<std::array<Int, 3>>& simplices);
 
     // --- Physics Calculations ---
     Tensors::Tensor2<Real, Int> CalculateWorldDisplacement(SceneObject& object);
@@ -34,9 +33,9 @@ public:
     Real GetEnergy(SceneObject& object);
 
     // --- Parameter Updates ---
-    void UpdateEngineParameters(); // Called when config changes
+    void UpdateEngineParameters();  // Called when config changes
 
-private:
+  private:
     void UpdateMeshParametersInternal(Mesh_T* meshPtr);
     void CreateOrUpdateEnergyMetricObjects();
 
@@ -54,4 +53,4 @@ private:
     std::mutex m_energyMetricMutex;
 };
 
-#endif // REPULSOR_ENGINE_H
+#endif  // REPULSOR_ENGINE_H

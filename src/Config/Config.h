@@ -34,8 +34,8 @@ struct ConfigType {
     } Opt;
 
     struct {
-        int verbosity = 1; // 0: no output, 1: some output, 2: detailed output
+        int verbosity = 1;  // 0: no output, 1: some output, 2: detailed output
     } Debug;
 };
 
-#endif // CONFIG_H
+#endif  // CONFIG_H
