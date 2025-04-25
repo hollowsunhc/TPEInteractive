@@ -14,7 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 
 # --- Compiler/Platform Specific Settings ---
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     # Flags specific to MSVC compiler (cl.exe)
     # Requires Testing
     message(STATUS "Configuring for MSVC")
@@ -24,9 +24,12 @@ if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
     set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /GR /EHsc")
-    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
     set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Ob0 /Od /RTC1")
     set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/INCREMENTAL:NO")
+
+    add_compile_options(/bigobj)
 
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if(WIN32 AND CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
@@ -39,17 +42,20 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
         
         set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /GR /EHsc")
-        set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
         set(CMAKE_CXX_FLAGS_DEBUG "/Zi /Ob0 /Od /RTC1")
         set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL")
+        set(CMAKE_CXX_FLAGS_RELEASE "-flto /Ox /Gw /DNDEBUG /arch:AVX2")
+        set(CMAKE_EXE_LINKER_FLAGS_RELEASE "/LTCG /INCREMENTAL:NO")
 
     else()
         # Flags for Clang on Linux/macOS/other
         # Requires Testing
         message(STATUS "Configuring for Clang (non-Windows)")
+
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wno-unused-parameter")
         set(CMAKE_CXX_FLAGS_DEBUG " -O0 -g")
-        set(CMAKE_CXX_FLAGS_RELEASE " -O3 -DNDEBUG")
+        set(CMAKE_CXX_FLAGS_RELEASE " -O3 -flto -DNDEBUG")
+        set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-flto")
     endif()
 
 elseif(CMAKE_COMPILER_IS_GNUCXX)
@@ -124,7 +130,6 @@ endif()
 ### Polyscope ###
 set(GLM_BUILD_LIBRARY OFF CACHE BOOL "Use GLM as header-only" FORCE)
 set(POLYSCOPE_BUILD_RENDERER_OPENGL_GLFW ON CACHE BOOL "" FORCE)
-# set(POLYSCOPE_USE_STANDALONE_GLM OFF CACHE BOOL "" FORCE)
 add_subdirectory(vendor/polyscope)
 
 if(NOT TARGET polyscope)
@@ -146,7 +151,17 @@ target_link_libraries(Repulsor::Repulsor INTERFACE
 )
 
 target_compile_definitions(Repulsor::Repulsor INTERFACE ${BLAS_LAPACK_DEFINES})
-target_compile_options(Repulsor::Repulsor INTERFACE /clang:-fenable-matrix)
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    if(WIN32 AND CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC") # Windows clang-cl
+        target_compile_options(Repulsor::Repulsor INTERFACE /clang:-fenable-matrix)
+        # std::thread already built into the C++ runtime (i.e. `msvcp140.dll`, `vcruntime140.dll`)
+    else() # Linux clang
+        target_compile_options(Repulsor::Repulsor INTERFACE -fenable-matrix)
+        find_package(Threads REQUIRED)
+        target_link_libraries(Repulsor::Repulsor INTERFACE Threads::Threads)
+    endif()
+endif()
 
 message(STATUS "Configured Repulsor")
 
