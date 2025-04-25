@@ -11,14 +11,20 @@
             "displayName": "Windows Base Configuration (Ninja Multi-Config)",
             "description": "Base settings for native Windows builds using clang-cl and Ninja Multi-Config",
             "hidden": true,
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
             "generator": "Ninja Multi-Config",
             "binaryDir": "${sourceDir}/out/build/native",
+
             "cacheVariables": {
                 "BUILD_SHARED_LIBS": "OFF",
                 "CMAKE_C_COMPILER": "clang-cl.exe",
                 "CMAKE_CXX_COMPILER": "clang-cl.exe",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/native",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/native/TPEInteractive",
                 "CMAKE_MAKE_PROGRAM": "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe"
             }
         },
@@ -53,6 +59,11 @@
             "name": "native-MKL-debug",
             "displayName": "MKL Debug",
             "configurePreset": "native-windows-MKL",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
             "configuration": "Debug",
             "verbose": false
         },
@@ -60,6 +71,11 @@
             "name": "native-MKL-release",
             "displayName": "MKL Release",
             "configurePreset": "native-windows-MKL",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
             "configuration": "Release",
             "verbose": false
         },
@@ -67,6 +83,11 @@
             "name": "native-OpenBLAS-debug",
             "displayName": "OpenBLAS Debug",
             "configurePreset": "native-windows-OpenBLAS",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
             "configuration": "Debug",
             "verbose": false
         },
@@ -74,6 +95,11 @@
             "name": "native-OpenBLAS-release",
             "displayName": "OpenBLAS Release",
             "configurePreset": "native-windows-OpenBLAS",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
             "configuration": "Release",
             "verbose": false
         }
@@ -81,11 +107,11 @@
   "testPresets": [],
   "workflowPresets": [
        {
-           "name": "build-mkl-debug",
+           "name": "windows-build-mkl-debug",
            "steps": [ { "type": "configure", "name": "native-windows-MKL" }, { "type": "build", "name": "native-MKL-debug" } ]
        },
        {
-           "name": "build-openblas-debug",
+           "name": "windows-build-openblas-debug",
            "steps": [ { "type": "configure", "name": "native-windows-OpenBLAS" }, { "type": "build", "name": "native-OpenBLAS-debug" } ]
        }
    ]
