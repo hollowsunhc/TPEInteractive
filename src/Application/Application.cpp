@@ -216,31 +216,10 @@ void Application::RequestDebugMeshCreation(int objectId) {
 }
 
 void Application::InvalidateCalculationCache() {
-    polyscope::info("Application: Invalidating calculation cache and visuals...");
+    polyscope::info("Application: Invalidating calculation cache...");
     m_vizCache.clear();
     m_globalDiffValid = false;
     m_globalGradValid = false;
-
-    if (m_sceneManager && m_vizEngine) {
-        for (const auto& objPtr : m_sceneManager->GetObjects()) {
-            const std::string& meshName = objPtr->GetUniqueName();
-            if (polyscope::hasSurfaceMesh(meshName)) {
-                auto* psMesh = polyscope::getSurfaceMesh(meshName);
-                if (psMesh) {
-                    m_vizEngine->RemoveVectorQuantity(*objPtr, "Differential");
-                    m_vizEngine->RemoveVectorQuantity(*objPtr, "Gradient");
-                } else {
-                    polyscope::warning("  InvalidateCache: Found structure '" + meshName +
-                                       "' but failed getSurfaceMesh.");
-                }
-            } else {
-                polyscope::info("  InvalidateCache: Skipping vector removal for non-existent mesh: " + meshName);
-            }
-        }
-    } else {
-        polyscope::warning("Application::InvalidateCalculationCache - SceneManager or VizEngine is null.");
-    }
-    m_vizEngine->RequestRedraw();
 }
 
 void Application::CalculateAllDifferentialsInternal() {
@@ -366,11 +345,14 @@ void Application::RequestCalculateAndShowDifferential() {
 void Application::RequestCalculateAndShowGradient() {
     if (!m_globalDiffValid) {
         CalculateAllDifferentialsInternal();
+        UpdateDifferentialVisualsInternal();
     }
 
     if (m_globalDiffValid) {
-        CalculateAllGradientsInternal();
-        UpdateGradientVisualsInternal();
+        if (!m_globalGradValid) {
+            CalculateAllGradientsInternal();
+            UpdateGradientVisualsInternal();
+        }
     } else {
         polyscope::warning("Application: Cannot show gradient, differential calculation failed.");
         // Ensure gradient visuals are removed if diff failed

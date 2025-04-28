@@ -129,9 +129,18 @@ void VisualizationEngine::UpdateVectorQuantity(SceneObject& object, const std::s
     std::vector<glm::vec3> scaledVectors = Utils::scaleVectorsForVisualization(
         vectors, m_config.Display.useLogScale, m_config.Display.differentialScale, m_config.Display.targetMaxLogScale);
 
-    psMesh->addVertexVectorQuantity(quantityName, scaledVectors, polyscope::VectorType::AMBIENT)
-        ->setVectorRadius(0.01)
-        ->setEnabled(true);
+    // We're only dealing with surface mesh vector quantities for now.
+    polyscope::SurfaceMeshQuantity* diffQuantitySV = psMesh->getQuantity(quantityName);
+
+    if (diffQuantitySV) {
+        auto diffQuantityV =
+            dynamic_cast<polyscope::VectorQuantity<polyscope::SurfaceVertexVectorQuantity>*>(diffQuantitySV);
+        diffQuantityV->updateData(scaledVectors);
+    } else {
+        psMesh->addVertexVectorQuantity(quantityName, scaledVectors, polyscope::VectorType::AMBIENT)
+            ->setVectorRadius(0.01)
+            ->setEnabled(true);
+    }
 }
 
 void VisualizationEngine::RemoveVectorQuantity(SceneObject& object, const std::string& quantityName) {
