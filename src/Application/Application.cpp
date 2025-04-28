@@ -156,6 +156,24 @@ void Application::RequestRepulsorParamUpdate() {
     polyscope::info("Application: Repulsor parameter update requested.");
     InvalidateCalculationCache();
     m_sceneManager->UpdateEngineParametersForAllObjects();
+
+    if (m_config.Interactivity.realTimeDiff) {
+        polyscope::info("Application: Recalculating Differential after physics step (real-time enabled)...");
+        CalculateAllDifferentialsInternal();
+        UpdateDifferentialVisualsInternal();
+
+        if (m_config.Interactivity.realTimeGrad) {
+            polyscope::info("Application: Recalculating Gradient after physics step (real-time enabled)...");
+            if (m_globalDiffValid) {
+                CalculateAllGradientsInternal();
+                UpdateGradientVisualsInternal();
+            } else {
+                polyscope::warning("Application: Skipping post-step gradient calculation as differential failed.");
+                UpdateGradientVisualsInternal();  // This will remove visuals if m_globalGradValid
+                                                  // is false
+            }
+        }
+    }
 }
 
 void Application::RequestPrintEnergy() {
