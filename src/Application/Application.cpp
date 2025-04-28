@@ -155,7 +155,7 @@ void Application::RequestPhysicsStep(int iterations) {
 void Application::RequestRepulsorParamUpdate() {
     polyscope::info("Application: Repulsor parameter update requested.");
     InvalidateCalculationCache();
-    m_sceneManager->UpdateEngineParametersForAllObjects();  // Needs implementing in SceneManager
+    m_sceneManager->UpdateEngineParametersForAllObjects();
 }
 
 void Application::RequestPrintEnergy() {
@@ -241,7 +241,7 @@ void Application::CalculateAllDifferentialsInternal() {
 
         try {
             Tensors::Tensor2<Real, Int> diff_tensor =
-                m_repulsorEngine->GetDifferential(*objPtr);  // Needs implementing in Engine
+                m_repulsorEngine->GetDifferential(*objPtr);
             m_vizCache[id].diff_glm = Utils::tensorToGlmVec3(diff_tensor);
             m_vizCache[id].diff_valid = true;
 
