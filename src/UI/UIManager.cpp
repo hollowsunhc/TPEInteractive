@@ -115,8 +115,6 @@ void UIManager::DrawVectorVisualizationControls() {
     Utils::HelpMarker("Updates gradients while dragging. Very slow! Requires Real-time Differentials.");
     ImGui::EndDisabled();
 
-    ImGui::Separator();
-
     // Scaling controls
     bool visualsNeedUpdate = false;
     visualsNeedUpdate |= ImGui::Checkbox("Logarithmic Vector Scale", &m_config.Display.useLogScale);
@@ -216,19 +214,20 @@ void UIManager::DrawActionControls() {
         m_application.RequestPrintEnergy();
     }
     ImGui::SameLine();
-    Utils::HelpMarker("Prints energy for simulation objects to console.");
+    Utils::HelpMarker("Prints energies to console.");
 
-    if (ImGui::Button("Show Differential")) {
+    if (ImGui::Button("Calculate Differential")) {
         m_application.RequestCalculateAndShowDifferential();
     }
     ImGui::SameLine();
-    Utils::HelpMarker("Calculates and displays the energy differential vectors.");
+    Utils::HelpMarker("Calculates the energy differential vectors. Creates and/or updates visuals.");
 
-    if (ImGui::Button("Show Gradient")) {
+    if (ImGui::Button("Calculate Gradient")) {
         m_application.RequestCalculateAndShowGradient();
     }
     ImGui::SameLine();
-    Utils::HelpMarker("Calculates and displays the energy gradient vectors (requires valid differential).");
+    Utils::HelpMarker("Calculates the energy gradient vectors. Creates and/or updates visuals. If "
+                      "differentials are invalid, calculates them beforehand.");
 }
 
 void UIManager::DrawDebugControls() {
