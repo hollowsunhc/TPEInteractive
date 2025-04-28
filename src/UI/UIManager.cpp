@@ -209,6 +209,8 @@ void UIManager::DrawActionControls() {
     if (ImGui::Button("Update Mesh")) {
         m_application.RequestPhysicsStep(m_config.Opt.nLoopIterations);
     }
+    ImGui::SameLine();
+    Utils::HelpMarker("Displaces mesh coordinates in the direction minimizing the tangent point energy.");
 
     if (ImGui::Button("Print Energy")) {
         m_application.RequestPrintEnergy();
